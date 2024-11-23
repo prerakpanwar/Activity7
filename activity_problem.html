@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Title</title>
+    <style>
+      /* General font style for the body */
+      body {
+        font-family: sans-serif;
+      }
+
+      /* SVG dimensions for the scatter plots */
+      svg {
+        width: 40vw;
+        height: 40vw;
+      }
+
+      /* Styling the container of the scatter plots */
+      div {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+      }
+
+      /* Styling the container for the list of selected points */
+      .list-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        width: 50vw;
+        padding: 20px;
+        background-color: #f3f3f3;
+        border-left: 1px solid #ccc;
+        overflow-y: auto;
+      }
+
+      /* Styling the list header */
+      .list-container h3 {
+        font-size: 18px;
+        color: #444;
+        margin-bottom: 10px;
+      }
+
+      /* Styling the list that will show selected points */
+      #selected-list {
+        padding: 10px;
+        list-style-type: none;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        max-height: 100%;
+        overflow-y: auto;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        flex-grow: 1;
+      }
+
+      /* Styling individual list items */
+      #selected-list li {
+        padding: 10px;
+        margin: 0;
+        border-bottom: 1px solid #eee;
+        font-size: 14px;
+        color: #555;
+      }
+
+      /* Add spacing around lists */
+      ul {
+        margin-left: 100px;
+        margin-right: 100px;
+      }
+    </style>
+    <!-- Load D3.js library for creating visualizations -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <!-- Include the scatter plot logic from an external script -->
+    <script src="js/scatterplot.problem.js"></script>
+    <!-- External stylesheet for additional styles -->
+    <link rel="stylesheet" href="styles/style.css" />
+  </head>
+  <body>
+    <!-- Container for two SVG scatter plots -->
+    <div>
+      <svg viewBox="0 0 1000 1000" id="figure1"></svg> <!-- First scatter plot -->
+      <svg viewBox="0 0 1000 1000" id="figure2"></svg> <!-- Second scatter plot -->
+    </div>
+    <!-- Container for the list of selected points -->
+    <div>
+      <ul id="selected-list"></ul>
+    </div>
+
+    <script>
+      // Load the CSV file containing the data
+      d3.csv("./data/car_sample_data.csv").then((data) => {
+
+        // Create a scatter plot for the first SVG element
+        scatter_plot(
+          (data = data),
+          (ax = "#figure1"),
+          (title = "MPG vs Price"), // Title of the plot
+          (xCol = "Price"), // X-axis is Price
+          (yCol = "MPG"), // Y-axis is MPG
+          (rCol = "Weight"), // Bubble size represents Weight
+          (legend = []), // Legend data (empty for now)
+          (colorCol = "Country"), // Bubble color represents Country
+          (margin = 150) // Margin around the plot
+        );
+        // MISSING PART 1
+        // Create a scatter plot for the second SVG element
+        scatter_plot(
+          (data = data),
+          (ax = "#figure2"),
+          (title = "MPG vs Engine Size"), // Title of the plot
+          (xCol = "EngineSizeCI"), // X-axis is Engine Size
+          (yCol = "MPG"), // Y-axis is MPG
+          (rCol = "Price"), // Bubble size represents Price
+          (legend = []), // Legend data (empty for now)
+          (colorCol = "Country"), // Bubble color represents Country
+          (margin = 150) // Margin around the plot
+        );
+
+        // Add an event listener to update the selected list on mouse movement
+        document.addEventListener("mousemove", () => {
+          const listBox = d3.select("#selected-list"); // Select the list container
+
+          // Find all points with the "selected" class
+          const selectedPoints = Array.from(
+            document.querySelectorAll(".selected")
+          );
+
+          // Extract unique IDs of the selected points
+          const ids = [
+            ...new Set(selectedPoints.map((d) => +d.id.split(" ")[0].slice(3))),
+          ];
+
+          // Clear the current list items
+          listBox.selectAll("li").remove();
+
+          // If there are selected points, add them to the list
+          if (ids.length > 0) {
+            listBox
+              .selectAll(".listVals")
+              .data(ids)
+              .enter()
+              .append("li")                                                                      // MISSING PART 2
+              .text((d) => {
+                const selectedData = data[d]; // Get data for the selected point                // MISSING PART 3
+                return `${selectedData.Model},${selectedData.Type}`; // Display Model and Type  // MISSING PART 3
+              });
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
